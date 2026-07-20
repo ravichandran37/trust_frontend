@@ -2092,7 +2092,7 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'row',
-    height: 'calc(100vh - 88px)',
+    height: 'calc(100dvh - 88px)',
   },
   sidebar: {
     width: '280px',

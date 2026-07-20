@@ -114,7 +114,7 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -374,7 +374,7 @@ a {
 /* Page wrapper transitions */
 .page-wrapper {
   animation: fadeIn 0.5s ease-out forwards;
-  min-height: calc(100vh - 80px - 350px);
+  min-height: calc(100dvh - 80px - 350px);
   /* header and footer spacing */
 }
 
@@ -389,7 +389,7 @@ a {
   .admin-dashboard-layout {
     flex-direction: column !important;
     height: auto !important;
-    min-height: calc(100vh - 88px) !important;
+    min-height: calc(100dvh - 88px) !important;
   }
   .admin-sidebar {
     width: 100% !important;
