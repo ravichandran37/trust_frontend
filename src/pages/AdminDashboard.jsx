@@ -105,6 +105,7 @@ export default function AdminDashboard() {
   // Services Modals
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [serviceImageFile, setServiceImageFile] = useState(null);
   const [serviceForm, setServiceForm] = useState({ 
     category: 'education', title: '', shortDesc: '', longDesc: '', metric: '', image: '', icon: 'Heart', subProjects: '', impactTestimony: '' 
   });
@@ -352,6 +353,13 @@ export default function AdminDashboard() {
     let finalServiceForm = { ...serviceForm };
     if (typeof finalServiceForm.subProjects === 'string') {
       finalServiceForm.subProjects = finalServiceForm.subProjects.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
+    if (serviceImageFile) {
+      const uploadRes = await uploadImage(serviceImageFile);
+      if (uploadRes && uploadRes.url) {
+        finalServiceForm.image = uploadRes.url;
+      }
     }
 
     if (editingService) {
@@ -1338,7 +1346,7 @@ export default function AdminDashboard() {
               <div style={styles.tabContent}>
                 <div style={styles.filtersBar} className="card-glass">
                   <h3 style={styles.cardTitle}>Manage Services</h3>
-                  <button onClick={() => { setEditingService(null); setServiceForm({ category: 'education', title: '', shortDesc: '', longDesc: '', metric: '', image: '', icon: 'Heart', subProjects: '', impactTestimony: '' }); setIsServiceModalOpen(true); }} className="btn btn-primary" style={styles.addDonBtn}>
+                  <button onClick={() => { setServiceImageFile(null); setEditingService(null); setServiceForm({ category: 'education', title: '', shortDesc: '', longDesc: '', metric: '', image: '', icon: 'Heart', subProjects: '', impactTestimony: '' }); setIsServiceModalOpen(true); }} className="btn btn-primary" style={styles.addDonBtn}>
                     <Plus size={16} />
                     <span>Add Service</span>
                   </button>
@@ -1353,7 +1361,7 @@ export default function AdminDashboard() {
                           <td style={styles.td}>{srv.category}</td>
                           <td style={styles.td}>{srv.metric}</td>
                           <td style={{ ...styles.td, display: 'flex', gap: '0.5rem' }}>
-                            <button onClick={() => { setEditingService(srv); setServiceForm({ ...srv, subProjects: srv.subProjects.join(', ') }); setIsServiceModalOpen(true); }} style={styles.actionBtnSmall}>Edit</button>
+                            <button onClick={() => { setServiceImageFile(null); setEditingService(srv); setServiceForm({ ...srv, subProjects: srv.subProjects.join(', ') }); setIsServiceModalOpen(true); }} style={styles.actionBtnSmall}>Edit</button>
                             <button onClick={() => handleDeleteService(srv.id)} style={{ ...styles.actionBtnSmall, color: 'red' }}>Delete</button>
                           </td>
                         </tr>
@@ -1816,9 +1824,10 @@ export default function AdminDashboard() {
                   <label style={styles.label}>Icon Component Name (e.g., Heart, Shield)</label>
                   <input type="text" value={serviceForm.icon} onChange={(e) => setServiceForm({...serviceForm, icon: e.target.value})} style={styles.input} />
                 </div>
-                <div>
-                  <label style={styles.label}>Image URL</label>
-                  <input type="text" value={serviceForm.image} onChange={(e) => setServiceForm({...serviceForm, image: e.target.value})} style={styles.input} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={styles.label}>Image (Upload or URL)</label>
+                  <input type="file" accept="image/*" onChange={(e) => setServiceImageFile(e.target.files[0])} style={{ fontSize: '0.85rem' }} />
+                  <input type="text" placeholder="Or enter image URL" value={serviceForm.image} onChange={(e) => setServiceForm({...serviceForm, image: e.target.value})} style={styles.input} />
                 </div>
               </div>
               <div>
