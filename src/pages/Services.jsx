@@ -117,19 +117,18 @@ export default function Services({ onDonateClick }) {
 
             <div style={serviceStyles.modalHero}>
               <img src={selectedService.image} alt={selectedService.title} style={serviceStyles.modalHeroImg} />
-              <div style={serviceStyles.modalHeroOverlay} />
               <button onClick={() => setSelectedService(null)} style={serviceStyles.modalCloseBtn}>
                 <Icons.X size={20} />
               </button>
-              <div style={serviceStyles.modalHeroContent}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--secondary-light)', fontWeight: 700, textTransform: 'uppercase' }}>
-                  {selectedService.category} Project
-                </span>
-                <h3 style={{ color: '#ffffff', fontSize: '1.6rem', marginTop: '0.25rem' }}>{selectedService.title}</h3>
-              </div>
             </div>
 
             <div style={serviceStyles.modalBody}>
+              <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase' }}>
+                  {selectedService.category} Project
+                </span>
+                <h3 style={{ color: 'var(--text-primary)', fontSize: '1.8rem', marginTop: '0.25rem', fontWeight: 800 }}>{selectedService.title}</h3>
+              </div>
               <div
                 style={{ fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '1.25rem' }}
                 dangerouslySetInnerHTML={{ __html: selectedService.longDesc }}
@@ -361,27 +360,28 @@ const serviceStyles = {
   },
   modalHero: {
     position: 'relative',
-    height: '250px',
     width: '100%',
+    backgroundColor: '#0f172a', // Dark background to frame the contained image
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 'var(--radius-xl)',
+    borderTopRightRadius: 'var(--radius-xl)',
+    overflow: 'hidden'
   },
   modalHeroImg: {
     width: '100%',
-    height: '100%',
-    objectFit: 'cover',
+    maxHeight: '350px',
+    objectFit: 'contain',
   },
   modalHeroOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    background: 'linear-gradient(to top, rgba(2, 44, 34, 0.9) 0%, transparent 100%)',
+    display: 'none'
   },
   modalCloseBtn: {
     position: 'absolute',
     top: '1rem',
     right: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
     backdropFilter: 'blur(4px)',
     border: 'none',
     width: '36px',
@@ -393,14 +393,10 @@ const serviceStyles = {
     color: '#ffffff',
     cursor: 'pointer',
     zIndex: 2,
+    transition: 'background-color var(--transition-fast)'
   },
   modalHeroContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    padding: '2rem',
-    zIndex: 2,
+    display: 'none'
   },
   modalBody: {
     padding: '2.5rem',
