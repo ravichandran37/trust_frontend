@@ -567,8 +567,8 @@ export default function AdminDashboard() {
 
       {!isLoggedIn ? (
         /* LOGIN SCREEN */
-        <div style={styles.loginWrapper} className="mesh-bg">
-          <div style={styles.loginCard} className="card-glass">
+        <div style={styles.loginWrapper} className="mesh-bg admin-login-wrapper">
+          <div style={styles.loginCard} className="card-glass admin-login-card">
             <div style={styles.loginHeader}>
               <div style={styles.shieldIcon}>
                 <Shield size={32} color="#ffffff" fill="var(--primary)" />
@@ -622,10 +622,10 @@ export default function AdminDashboard() {
         </div>
       ) : (
         /* MAIN DASHBOARD PANEL */
-        <div style={styles.dashboardLayout}>
+        <div style={styles.dashboardLayout} className="admin-dashboard-layout">
           
           {/* SIDEBAR NAVIGATION */}
-          <aside style={styles.sidebar}>
+          <aside style={styles.sidebar} className="admin-sidebar">
             <div style={styles.sidebarBrand}>
               <img src="/logo.png" alt="Logo" style={{ height: '45px', width: 'auto', objectFit: 'contain' }} />
               <div>

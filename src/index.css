@@ -377,3 +377,24 @@ a {
   min-height: calc(100vh - 80px - 350px);
   /* header and footer spacing */
 }
+
+/* Mobile Optimization for Admin Login & Dashboard */
+@media (max-width: 768px) {
+  .admin-login-wrapper {
+    padding: 1.5rem 1rem !important;
+  }
+  .admin-login-card {
+    padding: 1.5rem !important;
+  }
+  .admin-dashboard-layout {
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: calc(100vh - 88px) !important;
+  }
+  .admin-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 1rem !important;
+  }
+}
