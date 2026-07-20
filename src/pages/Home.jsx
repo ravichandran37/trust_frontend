@@ -210,7 +210,7 @@ export default function Home({ onDonateClick, setCurrentPage }) {
           <h2 style={homeStyles.helpTitle}>How You Can Help?</h2>
           <div style={homeStyles.helpUnderline}></div>
 
-          <div style={homeStyles.helpGrid}>
+          <div style={homeStyles.helpGrid} className="help-grid">
             <div style={homeStyles.helpItem}>
               <div style={homeStyles.helpIconWrapper}><Handshake size={48} color="#c0563e" /></div>
               <h3 style={homeStyles.helpItemTitle}>Become a Partner</h3>
@@ -579,12 +579,16 @@ if (typeof window !== 'undefined') {
       color: var(--primary-light) !important;
     }
     @media (max-width: 768px) {
+      .help-grid {
+        flex-direction: column !important;
+        gap: 1rem !important;
+      }
       .help-divider {
         height: 0px !important;
         width: 80px !important;
         border-left: none !important;
-        border-top: 1px dashed #d35400 !important;
-        margin: 2rem auto !important;
+        border-top: 2px dashed #d35400 !important;
+        margin: 1.5rem auto !important;
       }
     }
   `;
