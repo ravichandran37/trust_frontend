@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, BookOpen, Activity, Award, ArrowRight, Shield, Globe, Users, Target } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { motion } from 'framer-motion';
+import { Heart, BookOpen, Activity, Award, ArrowRight, Shield, Globe, Users, Target, Handshake, Gift } from 'lucide-react';
 
 export default function Home({ onDonateClick, setCurrentPage }) {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -67,13 +69,17 @@ export default function Home({ onDonateClick, setCurrentPage }) {
   ];
 
   return (
-    <div className="page-wrapper" style={homeStyles.wrapper}>
-      
+    <div style={{ fontFamily: 'var(--font-body)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
+      <Helmet>
+        <title>Annai Therasa Home - Empowering Next Generations</title>
+        <meta name="description" content="Annai Therasa Home is dedicated to providing quality education, healthcare, and livelihood training to underprivileged communities in rural areas." />
+      </Helmet>
+
       {/* Hero Section */}
       <section style={homeStyles.hero}>
         {slides.map((slide, idx) => (
-          <div 
-            key={idx} 
+          <div
+            key={idx}
             style={{
               ...homeStyles.slide,
               opacity: activeSlide === idx ? 1 : 0,
@@ -82,10 +88,10 @@ export default function Home({ onDonateClick, setCurrentPage }) {
           >
             {/* Background image overlay */}
             <div style={homeStyles.slideImageOverlay}>
-              <img 
-                src={slide.image} 
-                alt={slide.title} 
-                style={homeStyles.slideImage} 
+              <img
+                src={slide.image}
+                alt={slide.title}
+                style={homeStyles.slideImage}
               />
               <div style={homeStyles.slideOverlayGrad} />
             </div>
@@ -97,16 +103,16 @@ export default function Home({ onDonateClick, setCurrentPage }) {
                 <h1 style={homeStyles.slideTitle}>{slide.title}</h1>
                 <p style={homeStyles.slideDesc}>{slide.desc}</p>
                 <div style={homeStyles.ctaGroup}>
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     onClick={onDonateClick}
                     style={{ padding: '1rem 2.2rem' }}
                   >
                     <Heart size={18} fill="currentColor" />
                     <span>{slide.ctaPrimary}</span>
                   </button>
-                  <button 
-                    className="btn btn-outline" 
+                  <button
+                    className="btn btn-outline"
                     onClick={() => {
                       if (idx === 0) setCurrentPage('about');
                       else if (idx === 1) setCurrentPage('services');
@@ -140,18 +146,26 @@ export default function Home({ onDonateClick, setCurrentPage }) {
         <div className="container">
           <div style={homeStyles.statsGrid}>
             {stats.map((stat, idx) => (
-              <div key={idx} className="card-glass" style={homeStyles.statCard}>
+              <motion.div
+                key={idx}
+                className="card-glass"
+                style={homeStyles.statCard}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
                 <div style={homeStyles.statIcon}>{stat.icon}</div>
                 <h3 style={homeStyles.statNumber}>{stat.number}</h3>
                 <p style={homeStyles.statLabel}>{stat.label}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Core Pillars Section */}
-      <section className="section" style={homeStyles.pillarsSection}>
+      <section className="section mesh-bg" style={homeStyles.pillarsSection}>
         <div className="container">
           <div style={homeStyles.sectionHeader}>
             <span style={homeStyles.sectionTag}>WHAT WE STAND FOR</span>
@@ -163,19 +177,54 @@ export default function Home({ onDonateClick, setCurrentPage }) {
 
           <div style={homeStyles.pillarsGrid}>
             {pillars.map((pillar, idx) => (
-              <div key={idx} className="card-glass" style={homeStyles.pillarCard}>
-                <div style={homeStyles.pillarIconBg}>{pillar.icon}</div>
-                <h3 style={homeStyles.pillarTitle}>{pillar.title}</h3>
-                <p style={homeStyles.pillarDesc}>{pillar.desc}</p>
-                <button 
-                  onClick={() => setCurrentPage('services')} 
-                  style={homeStyles.pillarLink}
-                >
-                  <span>{pillar.action}</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
+              <motion.div
+                key={idx}
+                className="card-glass"
+                style={idx === 0 ? homeStyles.pillarCardLarge : homeStyles.pillarCard}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <div style={idx === 0 ? homeStyles.pillarIconBgLarge : homeStyles.pillarIconBg}>{pillar.icon}</div>
+                <div style={idx === 0 ? { flex: 1 } : {}}>
+                  <h3 style={idx === 0 ? homeStyles.pillarTitleLarge : homeStyles.pillarTitle}>{pillar.title}</h3>
+                  <p style={homeStyles.pillarDesc}>{pillar.desc}</p>
+                  <button
+                    onClick={() => setCurrentPage('services')}
+                    style={{ ...homeStyles.pillarLink, marginTop: '1rem' }}
+                  >
+                    <span>{pillar.action}</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How You Can Help Section */}
+      <section style={homeStyles.helpSection}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <h2 style={homeStyles.helpTitle}>How You Can Help?</h2>
+          <div style={homeStyles.helpUnderline}></div>
+
+          <div style={homeStyles.helpGrid}>
+            <div style={homeStyles.helpItem}>
+              <div style={homeStyles.helpIconWrapper}><Handshake size={48} color="#c0563e" /></div>
+              <h3 style={homeStyles.helpItemTitle}>Become a Partner</h3>
+            </div>
+            <div style={homeStyles.helpDivider} className="help-divider"></div>
+            <div style={homeStyles.helpItem}>
+              <div style={homeStyles.helpIconWrapper}><Users size={48} color="#c0563e" /></div>
+              <h3 style={homeStyles.helpItemTitle}>Volunteer with us</h3>
+            </div>
+            <div style={homeStyles.helpDivider} className="help-divider"></div>
+            <div style={homeStyles.helpItem}>
+              <div style={homeStyles.helpIconWrapper}><Gift size={48} color="#c0563e" /></div>
+              <h3 style={homeStyles.helpItemTitle}>Donate for a Cause</h3>
+            </div>
           </div>
         </div>
       </section>
@@ -342,6 +391,7 @@ const homeStyles = {
   },
   pillarsSection: {
     backgroundColor: 'var(--bg-base)',
+    position: 'relative',
   },
   sectionHeader: {
     textAlign: 'center',
@@ -365,31 +415,54 @@ const homeStyles = {
   },
   pillarsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
     gap: '2rem',
   },
   pillarCard: {
-    padding: '3rem 2rem',
+    padding: '3rem 2.5rem',
     textAlign: 'left',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: '1.25rem',
   },
+  pillarCardLarge: {
+    padding: '4rem 3rem',
+    textAlign: 'left',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '3rem',
+    gridColumn: '1 / -1',
+    flexWrap: 'wrap',
+  },
   pillarIconBg: {
-    backgroundColor: 'rgba(6, 78, 59, 0.08)',
-    padding: '1rem',
+    backgroundColor: 'rgba(var(--primary-rgb), 0.08)',
+    padding: '1.25rem',
+    borderRadius: 'var(--radius-lg)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillarIconBgLarge: {
+    backgroundColor: 'rgba(var(--primary-rgb), 0.08)',
+    padding: '2rem',
     borderRadius: 'var(--radius-lg)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   },
   pillarTitle: {
-    fontSize: '1.35rem',
+    fontSize: '1.5rem',
     fontWeight: 700,
   },
+  pillarTitleLarge: {
+    fontSize: '2rem',
+    fontWeight: 700,
+    marginBottom: '1rem',
+  },
   pillarDesc: {
-    fontSize: '0.95rem',
+    fontSize: '1.05rem',
     color: 'var(--text-secondary)',
     lineHeight: 1.6,
   },
@@ -450,6 +523,53 @@ const homeStyles = {
     gap: '1.25rem',
     flexWrap: 'wrap',
   },
+  helpSection: {
+    padding: '4rem 0',
+    backgroundColor: 'var(--bg-default)',
+  },
+  helpTitle: {
+    fontSize: '2.5rem',
+    fontWeight: 700,
+    marginBottom: '0.5rem',
+  },
+  helpUnderline: {
+    width: '100px',
+    height: '6px',
+    backgroundColor: '#d35400',
+    margin: '0 auto 3rem auto',
+    borderRadius: '10px',
+  },
+  helpGrid: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    maxWidth: '900px',
+    margin: '0 auto',
+    flexWrap: 'wrap',
+    gap: '2rem',
+  },
+  helpItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    flex: 1,
+    minWidth: '200px',
+  },
+  helpIconWrapper: {
+    marginBottom: '1rem',
+  },
+  helpItemTitle: {
+    fontSize: '1.25rem',
+    color: '#bd4c54',
+    fontWeight: 600,
+  },
+  helpDivider: {
+    width: '0px',
+    height: '80px',
+    borderLeft: '1px dashed #d35400',
+    margin: '0 1rem',
+    display: 'block',
+  },
 };
 
 if (typeof window !== 'undefined') {
@@ -457,6 +577,15 @@ if (typeof window !== 'undefined') {
   styleEl.innerHTML = `
     .pillar-link-hover:hover {
       color: var(--primary-light) !important;
+    }
+    @media (max-width: 768px) {
+      .help-divider {
+        height: 0px !important;
+        width: 80px !important;
+        border-left: none !important;
+        border-top: 1px dashed #d35400 !important;
+        margin: 2rem auto !important;
+      }
     }
   `;
   document.head.appendChild(styleEl);

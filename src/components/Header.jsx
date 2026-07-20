@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Heart, Sun, Moon } from 'lucide-react';
+import { Menu, X, Heart, Sun, Moon, User } from 'lucide-react';
+import { getMenuOptions } from '../utils/api';
 
 export default function Header({ currentPage, setCurrentPage, onDonateClick, theme, toggleTheme }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [menuOptions, setMenuOptions] = useState([]);
+
+  useEffect(() => {
+    getMenuOptions().then(setMenuOptions).catch(console.error);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,18 +23,32 @@ export default function Header({ currentPage, setCurrentPage, onDonateClick, the
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  const baseNavLinks = [
     { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
+    { id: 'about', label: 'About Us', category: 'about_us' },
     { id: 'services', label: 'Services' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'contact', label: 'Contact' },
   ];
 
   const handleNavClick = (pageId) => {
-    setCurrentPage(pageId);
+    const clickedOption = menuOptions.find(o => o.linkId === pageId);
+    
+    if (clickedOption && clickedOption.category === 'about_us' && pageId !== 'board-members') {
+      setCurrentPage('about');
+      setTimeout(() => {
+        const el = document.getElementById(pageId);
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      setCurrentPage(pageId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
     setIsMobileMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -36,31 +56,53 @@ export default function Header({ currentPage, setCurrentPage, onDonateClick, the
       <div className="container" style={headerStyles.navContainer}>
         {/* Logo */}
         <div style={headerStyles.logoContainer} onClick={() => handleNavClick('home')}>
-          <div style={headerStyles.logoIcon}>
-            <Heart size={20} color="#ffffff" fill="#ffffff" />
-          </div>
-          <span style={headerStyles.logoText}>
-            Ponner<span style={headerStyles.logoHighlight}>Trust</span>
-          </span>
+          <img src="/logo.png" alt="Annai Therasa Home Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain', borderRadius: '6px' }} />
         </div>
 
         {/* Desktop Navigation */}
         <nav style={headerStyles.desktopNav}>
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => handleNavClick(link.id)}
-              style={headerStyles.navLink(currentPage === link.id)}
-              id={`nav-link-${link.id}`}
-            >
-              {link.label}
-              {currentPage === link.id && <div style={headerStyles.activeDot} />}
-            </button>
-          ))}
+          {baseNavLinks.map((link) => {
+            const subLinks = link.category ? menuOptions.filter(o => o.category === link.category) : [];
+            const hasDropdown = subLinks.length > 0;
+            return (
+              <div key={link.id} className="nav-item-wrapper" style={{ position: 'relative' }}>
+                <button
+                  onClick={() => handleNavClick(link.id)}
+                  style={headerStyles.navLink(currentPage === link.id)}
+                  id={`nav-link-${link.id}`}
+                >
+                  {link.label}
+                  {currentPage === link.id && <div style={headerStyles.activeDot} />}
+                </button>
+                {hasDropdown && (
+                  <div className="nav-dropdown" style={headerStyles.dropdownMenu}>
+                    {subLinks.map(sub => (
+                      <button 
+                        key={sub.id} 
+                        style={headerStyles.dropdownItem}
+                        onClick={() => handleNavClick(sub.linkId)}
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         {/* Actions (Theme toggle & Donate) */}
         <div style={headerStyles.actions}>
+          <button
+            onClick={() => handleNavClick('admin')}
+            style={headerStyles.profileBtn}
+            aria-label="Admin Portal"
+            id="header-admin-btn"
+          >
+            <User size={20} color="var(--primary)" />
+          </button>
+          
           <button
             onClick={toggleTheme}
             style={headerStyles.themeToggle}
@@ -96,16 +138,29 @@ export default function Header({ currentPage, setCurrentPage, onDonateClick, the
       {isMobileMenuOpen && (
         <div style={headerStyles.mobileMenu}>
           <div style={headerStyles.mobileMenuContent}>
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => handleNavClick(link.id)}
-                style={headerStyles.mobileNavLink(currentPage === link.id)}
-                id={`mobile-nav-link-${link.id}`}
-              >
-                {link.label}
-              </button>
-            ))}
+            {baseNavLinks.map((link) => {
+              const subLinks = link.category ? menuOptions.filter(o => o.category === link.category) : [];
+              return (
+                <React.Fragment key={link.id}>
+                  <button
+                    onClick={() => handleNavClick(link.id)}
+                    style={headerStyles.mobileNavLink(currentPage === link.id)}
+                    id={`mobile-nav-link-${link.id}`}
+                  >
+                    {link.label}
+                  </button>
+                  {subLinks.map(sub => (
+                    <button
+                      key={sub.id}
+                      onClick={() => handleNavClick(sub.linkId)}
+                      style={{...headerStyles.mobileNavLink(currentPage === sub.linkId), paddingLeft: '1.5rem', fontSize: '1rem'}}
+                    >
+                      - {sub.label}
+                    </button>
+                  ))}
+                </React.Fragment>
+              );
+            })}
             <button 
               className="btn btn-primary" 
               onClick={() => {
@@ -151,6 +206,7 @@ const headerStyles = {
     gap: '0.65rem',
     cursor: 'pointer',
     userSelect: 'none',
+    flex: 1,
   },
   logoIcon: {
     backgroundColor: 'var(--primary)',
@@ -174,10 +230,9 @@ const headerStyles = {
   desktopNav: {
     display: 'none',
     alignItems: 'center',
-    gap: '2rem',
-    '@media (min-width: 768px)': {
-      display: 'flex',
-    },
+    gap: '0.75rem',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   // Active states
   navLink: (isActive) => ({
@@ -202,12 +257,50 @@ const headerStyles = {
     borderRadius: '50%',
     backgroundColor: 'var(--secondary)',
   },
+  dropdownMenu: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    zIndex: 1000,
+    backgroundColor: 'var(--bg-surface)',
+    minWidth: '200px',
+    boxShadow: 'var(--shadow-lg)',
+    borderRadius: 'var(--radius-md)',
+    padding: '0.5rem 0',
+    display: 'none',
+    flexDirection: 'column',
+    border: '1px solid var(--border-glass)',
+  },
+  dropdownItem: {
+    background: 'none',
+    border: 'none',
+    padding: '0.75rem 1.25rem',
+    textAlign: 'left',
+    width: '100%',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    color: 'var(--text-primary)',
+    fontFamily: 'var(--font-body)',
+  },
   actions: {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   themeToggle: {
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border-color)',
+    padding: '0.55rem',
+    borderRadius: 'var(--radius-md)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all var(--transition-fast)',
+  },
+  profileBtn: {
     background: 'var(--bg-surface)',
     border: '1px solid var(--border-color)',
     padding: '0.55rem',
@@ -275,6 +368,13 @@ if (typeof window !== 'undefined') {
       #mobile-menu-toggle-btn { display: none !important; }
       #header-donate-btn { display: inline-flex !important; }
       header nav { display: flex !important; }
+    }
+    .nav-item-wrapper:hover .nav-dropdown {
+      display: flex !important;
+    }
+    .nav-dropdown button:hover {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--primary);
     }
   `;
   document.head.appendChild(styleEl);

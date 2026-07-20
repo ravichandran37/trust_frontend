@@ -37,15 +37,10 @@ export default function Footer({ setCurrentPage }) {
           {/* Brand Info */}
           <div style={footerStyles.brandCol}>
             <div style={footerStyles.logoContainer} onClick={() => handleNavClick('home')}>
-              <div style={footerStyles.logoIcon}>
-                <Heart size={18} color="#ffffff" fill="#ffffff" />
-              </div>
-              <span style={footerStyles.logoText}>
-                Ponner<span style={footerStyles.logoHighlight}>Trust</span>
-              </span>
+              <img src="/logo.png" alt="Annai Therasa Home Logo" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
             </div>
             <p style={footerStyles.brandDesc}>
-              Dedicated to creating sustainable positive change through impactful initiatives in education, healthcare, and rural empowerment since 2011.
+              Dedicated to creating sustainable positive change through impactful initiatives, advocacy, and dedicated care for the intellectually impaired and handicapped since 2009.
             </p>
             <div style={footerStyles.socials}>
               <a href="#" style={footerStyles.socialIcon} aria-label="Facebook">
@@ -67,11 +62,20 @@ export default function Footer({ setCurrentPage }) {
           <div style={footerStyles.linksCol}>
             <h4 style={footerStyles.title}>Quick Links</h4>
             <ul style={footerStyles.list}>
-              {['home', 'about', 'services', 'gallery', 'contact'].map((page) => (
-                <li key={page} style={footerStyles.listItem}>
-                  <button onClick={() => handleNavClick(page)} style={footerStyles.linkBtn}>
+              {[
+                { id: 'home', label: 'Home' },
+                { id: 'about', label: 'About Us' },
+                { id: 'our-work', label: 'Our Work' },
+                { id: 'get-involved', label: 'Get Involved' },
+                { id: 'services', label: 'Services' },
+                { id: 'gallery', label: 'Gallery' },
+                { id: 'contact', label: 'Contact' },
+                { id: 'admin', label: 'Admin Portal' }
+              ].map((page) => (
+                <li key={page.id} style={footerStyles.listItem}>
+                  <button onClick={() => handleNavClick(page.id)} style={footerStyles.linkBtn}>
                     <ArrowRight size={12} style={footerStyles.bullet} />
-                    <span style={{ textTransform: 'capitalize' }}>{page}</span>
+                    <span>{page.label}</span>
                   </button>
                 </li>
               ))}
@@ -119,11 +123,11 @@ export default function Footer({ setCurrentPage }) {
             <div style={footerStyles.contactShort}>
               <div style={footerStyles.contactItem}>
                 <MapPin size={16} color="var(--secondary)" />
-                <span>12/4 Ponner Trust Building, Chennai, TN, India</span>
+                <span>Ayyappan Nagar, First Street, Y. Ottakadai, Madurai, Tamil Nadu</span>
               </div>
               <div style={footerStyles.contactItem}>
                 <Phone size={16} color="var(--secondary)" />
-                <span>+91 44 2873 9104</span>
+                <span>+91 96555 73202</span>
               </div>
             </div>
           </div>
@@ -132,10 +136,10 @@ export default function Footer({ setCurrentPage }) {
         {/* Bottom Bar */}
         <div style={footerStyles.bottom}>
           <p style={footerStyles.copyright}>
-            &copy; {new Date().getFullYear()} Ponner Educational & Charitable Trust. All rights reserved.
+            &copy; {new Date().getFullYear()} Annai Therasa Home for the Intellectually Impaired and the Handicapped. All rights reserved.
           </p>
           <p style={footerStyles.regInfo}>
-            Registered under Indian Trust Act 1882 | Section 80G Tax Exempt Certified.
+            Rights of Persons with Disabilities Act 2016 Government Recognized | Registration No.: 128/2009 | 12A.80G.CSR 2
           </p>
         </div>
       </div>

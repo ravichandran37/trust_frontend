@@ -1,77 +1,51 @@
-import React, { useState } from 'react';
-import { BookOpen, Activity, Heart, Shield, CheckCircle, ArrowRight, X, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
+import * as Icons from 'lucide-react';
+import { getServices } from '../utils/api';
 
 export default function Services({ onDonateClick }) {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedService, setSelectedService] = useState(null);
 
-  const tabs = [
-    { id: 'all', label: 'All Projects' },
-    { id: 'education', label: 'Education' },
-    { id: 'healthcare', label: 'Healthcare' },
-    { id: 'livelihood', label: 'Livelihood' },
-    { id: 'environment', label: 'Environment' }
-  ];
+  const [services, setServices] = useState([]);
+  const [tabs, setTabs] = useState([{ id: 'all', label: 'All Projects' }]);
 
-  const services = [
-    {
-      id: 'vidya',
-      category: 'education',
-      title: 'Vidya Scholarship Program',
-      shortDesc: 'Funding college and secondary school tuition fees for merit-based underprivileged rural students.',
-      longDesc: 'The Vidya Scholarship Program identifies brilliant students from low-income agricultural families who cannot afford higher secondary or collegiate tuition. We pay direct collegiate fees, supply textbooks, and assign corporate mentors to help guide their career paths.',
-      metric: '850+ Scholarships Awarded',
-      image: '/images/hero.png',
-      icon: <BookOpen size={24} />,
-      subProjects: ['College Tuition Coverage', 'Textbook Distribution Camps', 'Digital Literacy Labs', '1-on-1 Mentorship Circles'],
-      impactTestimony: '"Without Ponner Trust, I would have dropped out after 10th grade. Today, I am a junior software engineer." — Ramesh Kumar, Vidya Scholar 2021.'
-    },
-    {
-      id: 'arogya',
-      category: 'healthcare',
-      title: 'Arogya Medical Camps',
-      shortDesc: 'Conducting free primary diagnostic checkups, vision tests, and distributing life-saving medicines in remote clusters.',
-      longDesc: 'Through Arogya Mobile clinics, we bring state-of-the-art diagnostic screening, general physician consults, and pediatric checkups to tribal and isolated hill stations where medical infrastructure is non-existent. Critical surgeries are sponsored via partner hospitals.',
-      metric: '14,000+ Patients Treated',
-      image: '/images/medical.png',
-      icon: <Activity size={24} />,
-      subProjects: ['Weekly General Health Clinics', 'Free Cataract Eye Surgeries', 'Pediatric Vaccination Support', 'Clean Sanitation & Hygiene Drives'],
-      impactTestimony: '"The mobile clinic comes to our village every Tuesday. The free medicines have controlled my mother\'s hypertension." — M. Selvi, Beneficiary.'
-    },
-    {
-      id: 'skill',
-      category: 'livelihood',
-      title: 'Women Skill Development',
-      shortDesc: 'Vocational training in sewing, textile weaving, and computer basics to foster financial self-reliance.',
-      longDesc: 'Our vocational schools provide women with structured certifications in professional sewing, fashion embroidery, and digital data entry. Graduates receive a free sewing machine or are placed in corporate craft units to immediately start earning.',
-      metric: '420+ Women Certified',
-      image: '/images/women.png',
-      icon: <Heart size={24} />,
-      subProjects: ['Tailoring & Sewing Certifications', 'Applique & Craft Design Workshops', 'Basic Computer & Accounting Literacy', 'Self-Help Group Financing Support'],
-      impactTestimony: '"I bought my own sewing machine using the trust\'s micro-subsidy. I now support my two children\'s education." — Priya Devi, Boutique Owner.'
-    },
-    {
-      id: 'green',
-      category: 'environment',
-      title: 'Green Village Drive',
-      shortDesc: 'Promoting solar lighting, organic farming advice, and community reforestation for eco-resilience.',
-      longDesc: 'The Green Village initiative focuses on environmental sustainability. We install solar-powered streetlights, facilitate water harvesting check-dams, conduct workshops on compost-based organic farming, and coordinate local reforestation programs.',
-      metric: '2,500+ Saplings Planted',
-      image: '/images/green.png',
-      icon: <Shield size={24} />,
-      subProjects: ['Solar Streetlight Installation', 'Reforestation & Tree Guards', 'Water Check-Dam Construction', 'Organic Composting Seminars'],
-      impactTestimony: '"Our village streets are safe to walk at night now thanks to the solar streetlights. The youth also planted 300 neem trees." — Panchayat President.'
-    }
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const loadedServices = await getServices();
+        setServices(loadedServices);
 
-  const filteredServices = activeTab === 'all' 
-    ? services 
+        const categories = new Set(loadedServices.map(s => s.category));
+        const dynamicTabs = [{ id: 'all', label: 'All Projects' }];
+        categories.forEach(cat => {
+          dynamicTabs.push({ id: cat, label: cat.charAt(0).toUpperCase() + cat.slice(1) });
+        });
+        setTabs(dynamicTabs);
+      } catch (err) {
+        console.error("Error fetching services:", err);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  const renderIcon = (iconName) => {
+    const IconComponent = Icons[iconName] || Icons.HelpCircle;
+    return <IconComponent size={24} />;
+  };
+
+  const filteredServices = activeTab === 'all'
+    ? services
     : services.filter(s => s.category === activeTab);
 
   return (
     <div className="page-wrapper" style={serviceStyles.wrapper}>
+      <Helmet>
+        <title>Our Services & Projects - Annai Therasa Home</title>
+        <meta name="description" content="Discover the various initiatives and projects run by Annai Therasa Home, from education and healthcare to livelihood support." />
+      </Helmet>
       {/* Page Hero */}
-      <section style={serviceStyles.hero}>
+      <section style={serviceStyles.hero} className="mesh-bg">
         <div style={serviceStyles.heroOverlay} />
         <div className="container" style={serviceStyles.heroContent}>
           <span style={serviceStyles.heroTag}>OUR SERVICES</span>
@@ -103,30 +77,30 @@ export default function Services({ onDonateClick }) {
             {filteredServices.map(service => (
               <div key={service.id} className="card-glass" style={serviceStyles.card}>
                 <div style={serviceStyles.cardImageWrapper}>
-                  <img src={service.image} alt={service.title} style={serviceStyles.cardImage} />
+                  <img src={service.image} alt={service.title} style={serviceStyles.cardImage} loading="lazy" />
                   <div style={serviceStyles.cardCategoryBadge}>{service.category}</div>
                 </div>
-                
+
                 <div style={serviceStyles.cardContent}>
                   <div style={serviceStyles.cardHeader}>
-                    <div style={serviceStyles.cardIconBg}>{service.icon}</div>
+                    <div style={serviceStyles.cardIconBg}>{renderIcon(service.icon)}</div>
                     <h3 style={{ fontSize: '1.25rem' }}>{service.title}</h3>
                   </div>
                   <p style={serviceStyles.cardText}>{service.shortDesc}</p>
-                  
+
                   <div style={serviceStyles.metricBlock}>
-                    <CheckCircle size={16} color="var(--primary)" />
+                    <Icons.CheckCircle size={16} color="var(--primary)" />
                     <span>{service.metric}</span>
                   </div>
 
                   <div style={serviceStyles.cardFooter}>
-                    <button 
+                    <button
                       onClick={() => setSelectedService(service)}
                       className="btn btn-outline"
                       style={{ padding: '0.6rem 1.2rem', fontSize: '0.88rem', width: '100%' }}
                     >
                       <span>Explore Project Details</span>
-                      <ArrowRight size={14} />
+                      <Icons.ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -140,12 +114,12 @@ export default function Services({ onDonateClick }) {
       {selectedService && (
         <div style={serviceStyles.modalBackdrop} onClick={() => setSelectedService(null)}>
           <div style={serviceStyles.modal} onClick={e => e.stopPropagation()} className="fade-in-el">
-            
+
             <div style={serviceStyles.modalHero}>
               <img src={selectedService.image} alt={selectedService.title} style={serviceStyles.modalHeroImg} />
               <div style={serviceStyles.modalHeroOverlay} />
               <button onClick={() => setSelectedService(null)} style={serviceStyles.modalCloseBtn}>
-                <X size={20} />
+                <Icons.X size={20} />
               </button>
               <div style={serviceStyles.modalHeroContent}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--secondary-light)', fontWeight: 700, textTransform: 'uppercase' }}>
@@ -156,32 +130,34 @@ export default function Services({ onDonateClick }) {
             </div>
 
             <div style={serviceStyles.modalBody}>
-              <p style={{ fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-                {selectedService.longDesc}
-              </p>
+              <div
+                style={{ fontSize: '0.98rem', lineHeight: 1.6, marginBottom: '1.25rem' }}
+                dangerouslySetInnerHTML={{ __html: selectedService.longDesc }}
+              />
 
               <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Sparkles size={18} color="var(--secondary)" />
+                <Icons.Sparkles size={18} color="var(--secondary)" />
                 <span>Primary Sub-Projects</span>
               </h4>
               <ul style={serviceStyles.subProjectsList}>
                 {selectedService.subProjects.map((proj, idx) => (
                   <li key={idx} style={serviceStyles.subProjectItem}>
-                    <CheckCircle size={15} color="var(--primary)" />
+                    <Icons.CheckCircle size={15} color="var(--primary)" />
                     <span>{proj}</span>
                   </li>
                 ))}
               </ul>
 
               <div style={serviceStyles.testimonyBox}>
-                <p style={{ fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                  {selectedService.impactTestimony}
+                <Icons.MessageSquare size={24} color="var(--secondary)" style={{ marginBottom: '0.5rem' }} />
+                <p style={{ fontStyle: 'italic', fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                  "{selectedService.impactTestimony}"
                 </p>
               </div>
 
               <div style={serviceStyles.modalActionRow}>
-                <button 
-                  className="btn btn-primary" 
+                <button
+                  className="btn btn-primary"
                   onClick={() => {
                     setSelectedService(null);
                     onDonateClick();
@@ -190,8 +166,8 @@ export default function Services({ onDonateClick }) {
                 >
                   Support This Project
                 </button>
-                <button 
-                  className="btn btn-outline" 
+                <button
+                  className="btn btn-outline"
                   onClick={() => setSelectedService(null)}
                   style={{ flex: 1 }}
                 >
@@ -279,120 +255,116 @@ const serviceStyles = {
   }),
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    gap: '2.5rem',
   },
   card: {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    textAlign: 'left',
-    height: '100%',
+    padding: 0,
+    transition: 'transform 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-8px)',
+    }
   },
   cardImageWrapper: {
     position: 'relative',
-    height: '200px',
+    height: '220px',
+    width: '100%',
     overflow: 'hidden',
   },
   cardImage: {
     width: '100%',
     height: '100%',
     objectFit: 'cover',
-    transition: 'transform var(--transition-normal)',
-    '&:hover': {
-      transform: 'scale(1.05)'
-    }
+    transition: 'transform 0.6s ease',
   },
   cardCategoryBadge: {
     position: 'absolute',
-    top: '15px',
-    left: '15px',
-    backgroundColor: 'var(--secondary)',
-    color: '#ffffff',
-    fontSize: '0.72rem',
+    top: '1rem',
+    right: '1rem',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    backdropFilter: 'blur(4px)',
+    color: 'var(--primary)',
     fontWeight: 700,
+    fontSize: '0.75rem',
+    padding: '0.4rem 0.8rem',
+    borderRadius: 'var(--radius-full)',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
-    padding: '0.25rem 0.65rem',
-    borderRadius: 'var(--radius-sm)',
-    boxShadow: 'var(--shadow-sm)',
   },
   cardContent: {
-    padding: '1.75rem',
+    padding: '2.5rem 2rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
     flex: 1,
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
+    gap: '1rem',
+    marginBottom: '1rem',
   },
   cardIconBg: {
-    backgroundColor: 'rgba(6, 78, 59, 0.08)',
-    color: 'var(--primary)',
-    padding: '0.5rem',
+    backgroundColor: 'rgba(var(--primary-rgb), 0.1)',
+    padding: '0.75rem',
     borderRadius: 'var(--radius-md)',
     display: 'flex',
+    color: 'var(--primary)',
   },
   cardText: {
-    fontSize: '0.92rem',
-    lineHeight: 1.5,
+    fontSize: '0.95rem',
     color: 'var(--text-secondary)',
+    lineHeight: 1.6,
     flex: 1,
+    marginBottom: '1.5rem',
   },
   metricBlock: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
-    fontSize: '0.88rem',
+    fontSize: '0.85rem',
     fontWeight: 600,
     color: 'var(--primary)',
-    backgroundColor: 'rgba(6, 78, 59, 0.05)',
-    padding: '0.5rem 0.75rem',
+    backgroundColor: 'rgba(var(--primary-rgb), 0.05)',
+    padding: '0.75rem 1rem',
     borderRadius: 'var(--radius-md)',
+    marginBottom: '1.5rem',
   },
   cardFooter: {
-    marginTop: '0.5rem',
+    marginTop: 'auto',
   },
-  // Modal drawer overlay styling
   modalBackdrop: {
     position: 'fixed',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    backdropFilter: 'blur(3px)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backdropFilter: 'blur(10px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1900,
+    zIndex: 100,
     padding: '1rem',
   },
   modal: {
     backgroundColor: 'var(--bg-surface)',
-    border: '1px solid var(--border-color)',
-    borderRadius: 'var(--radius-lg)',
     width: '100%',
-    maxWidth: '560px',
+    maxWidth: '700px',
+    maxHeight: '90vh',
+    borderRadius: 'var(--radius-lg)',
+    overflowY: 'auto',
+    position: 'relative',
     boxShadow: 'var(--shadow-xl)',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
   },
   modalHero: {
     position: 'relative',
-    height: '180px',
-    display: 'flex',
-    alignItems: 'flex-end',
-    padding: '1.5rem',
+    height: '250px',
+    width: '100%',
   },
   modalHeroImg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
     width: '100%',
     height: '100%',
     objectFit: 'cover',
@@ -403,58 +375,57 @@ const serviceStyles = {
     left: 0,
     width: '100%',
     height: '100%',
-    background: 'linear-gradient(to top, rgba(11, 15, 23, 0.95) 0%, rgba(11, 15, 23, 0.3) 100%)',
+    background: 'linear-gradient(to top, rgba(2, 44, 34, 0.9) 0%, transparent 100%)',
   },
   modalCloseBtn: {
     position: 'absolute',
-    top: '15px',
-    right: '15px',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    top: '1rem',
+    right: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(4px)',
     border: 'none',
-    color: '#ffffff',
-    width: '32px',
-    height: '32px',
+    width: '36px',
+    height: '36px',
     borderRadius: '50%',
-    cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    color: '#ffffff',
+    cursor: 'pointer',
+    zIndex: 2,
   },
   modalHeroContent: {
-    position: 'relative',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    padding: '2rem',
     zIndex: 2,
-    textAlign: 'left',
   },
   modalBody: {
-    padding: '1.5rem',
-    textAlign: 'left',
-    display: 'flex',
-    flexDirection: 'column',
+    padding: '2.5rem',
   },
   subProjectsList: {
     listStyle: 'none',
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '0.6rem',
-    marginBottom: '1.25rem',
-    '@media (max-width: 500px)': {
-      gridTemplateColumns: '1fr',
-    },
+    padding: 0,
+    margin: '0 0 2rem 0',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
   },
   subProjectItem: {
     display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    fontSize: '0.88rem',
+    alignItems: 'flex-start',
+    gap: '0.75rem',
+    fontSize: '0.95rem',
     color: 'var(--text-secondary)',
   },
   testimonyBox: {
-    borderLeft: '3px solid var(--secondary)',
-    paddingLeft: '1rem',
-    backgroundColor: 'var(--bg-surface-hover)',
-    padding: '0.85rem',
-    borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
-    marginBottom: '1.5rem',
+    backgroundColor: 'var(--bg-base)',
+    padding: '2rem',
+    borderRadius: 'var(--radius-lg)',
+    borderLeft: '4px solid var(--secondary)',
+    marginBottom: '2.5rem',
   },
   modalActionRow: {
     display: 'flex',

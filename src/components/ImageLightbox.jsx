@@ -126,11 +126,6 @@ const lightboxStyles = {
     justifyContent: 'center',
     transition: 'all var(--transition-fast)',
     zIndex: 2200,
-    '@media (max-width: 768px)': {
-      width: '44px',
-      height: '44px',
-      [direction === 'left' ? 'left' : 'right']: '10px',
-    },
   }),
   contentContainer: {
     display: 'flex',

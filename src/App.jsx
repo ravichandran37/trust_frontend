@@ -9,11 +9,20 @@ import About from './pages/About';
 import Services from './pages/Services';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
+import AdminDashboard from './pages/AdminDashboard';
+import DynamicPage from './pages/DynamicPage';
+import BoardMembers from './pages/BoardMembers';
 
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(() => {
+    return sessionStorage.getItem('ponnar_currentPage') || 'home';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('ponnar_currentPage', currentPage);
+  }, [currentPage]);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -71,8 +80,17 @@ function App() {
         return <Gallery onImageClick={handleOpenLightbox} />;
       case 'contact':
         return <Contact />;
+      case 'admin':
+        return <AdminDashboard />;
+      case 'board-members':
+        return <BoardMembers />;
       default:
-        return <Home onDonateClick={() => setIsDonateOpen(true)} setCurrentPage={setCurrentPage} />;
+        // If the page doesn't match a hardcoded route, render DynamicPage
+        // Ensure it doesn't render DynamicPage for 'home' if it's the initial state
+        if (currentPage === 'home') {
+          return <Home onDonateClick={() => setIsDonateOpen(true)} setCurrentPage={setCurrentPage} />;
+        }
+        return <DynamicPage pageId={currentPage} />;
     }
   };
 
@@ -90,7 +108,7 @@ function App() {
         {renderPage()}
       </main>
 
-      <Footer setCurrentPage={setCurrentPage} />
+      {currentPage !== 'admin' && <Footer setCurrentPage={setCurrentPage} />}
 
       <QuickDonateModal isOpen={isDonateOpen} onClose={() => setIsDonateOpen(false)} />
 

@@ -1,83 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Camera, Layers, ZoomIn } from 'lucide-react';
+import { getGalleryCategories, getGalleryItems } from '../utils/api';
 
 export default function Gallery({ onImageClick }) {
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const categories = [
-    { id: 'all', label: 'All Media' },
-    { id: 'education', label: 'Education' },
-    { id: 'healthcare', label: 'Healthcare' },
-    { id: 'community', label: 'Community' },
-    { id: 'environment', label: 'Environment' }
-  ];
+  const [categories, setCategories] = useState([]);
+  const [galleryItems, setGalleryItems] = useState([]);
 
-  const galleryItems = [
-    {
-      id: 1,
-      src: '/images/hero.png',
-      category: 'education',
-      title: 'Vidya Scholarship Distribution 2025',
-      date: 'Jan 2026',
-      description: 'Distribution of scholarships and textbooks to students at the regional community hall.'
-    },
-    {
-      id: 2,
-      src: '/images/medical.png',
-      category: 'healthcare',
-      title: 'Mobile Medical Van Diagnostics',
-      date: 'Dec 2025',
-      description: 'Arogya health outreach checking senior citizens in the interior villages.'
-    },
-    {
-      id: 3,
-      src: '/images/women.png',
-      category: 'community',
-      title: 'Tailoring & Craft Training Seminar',
-      date: 'Nov 2025',
-      description: 'Vocational training lab helping local women create artisan textiles.'
-    },
-    {
-      id: 4,
-      src: '/images/green.png',
-      category: 'environment',
-      title: 'Afforestation Drive & Tree Guard Fitment',
-      date: 'Oct 2025',
-      description: 'Youth volunteers securing native saplings to restore local water levels.'
-    },
-    {
-      id: 5,
-      src: '/images/hero.png',
-      category: 'education',
-      title: 'Rural Computer Center Opening',
-      date: 'Sep 2025',
-      description: 'First digital classroom set up with desktop systems in district high school.'
-    },
-    {
-      id: 6,
-      src: '/images/medical.png',
-      category: 'healthcare',
-      title: 'Free Cataract Detection Camps',
-      date: 'Aug 2025',
-      description: 'Doctors conducting high-precision ocular tests for rural farmers.'
-    },
-    {
-      id: 7,
-      src: '/images/women.png',
-      category: 'community',
-      title: 'Micro-Finance & Self-Help Group Meet',
-      date: 'Jul 2025',
-      description: 'Advisory panel training graduates on business budget sheets.'
-    },
-    {
-      id: 8,
-      src: '/images/green.png',
-      category: 'environment',
-      title: 'Solar Streetlight Commissioning',
-      date: 'Jun 2025',
-      description: 'First set of clean-energy solar lamp posts installed along main village road.'
-    }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [cats, items] = await Promise.all([
+          getGalleryCategories(),
+          getGalleryItems()
+        ]);
+        setCategories(cats);
+        setGalleryItems(items);
+      } catch (err) {
+        console.error("Error fetching gallery data:", err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const filteredItems = activeCategory === 'all' 
     ? galleryItems 
@@ -89,8 +35,12 @@ export default function Gallery({ onImageClick }) {
 
   return (
     <div className="page-wrapper" style={galleryStyles.wrapper}>
+      <Helmet>
+        <title>Media Gallery - Annai Therasa Home</title>
+        <meta name="description" content="Explore our visual documentation of completed and ongoing projects at Annai Therasa Home, highlighting our impact on rural communities." />
+      </Helmet>
       {/* Page Hero */}
-      <section style={galleryStyles.hero}>
+      <section style={galleryStyles.hero} className="mesh-bg">
         <div style={galleryStyles.heroOverlay} />
         <div className="container" style={galleryStyles.heroContent}>
           <span style={galleryStyles.heroTag}>OUR GALLERY</span>
@@ -127,7 +77,7 @@ export default function Gallery({ onImageClick }) {
                 onClick={() => handleItemClick(idx)}
               >
                 <div style={galleryStyles.imgWrapper}>
-                  <img src={item.src} alt={item.title} style={galleryStyles.image} />
+                  <img src={item.src} alt={item.title} style={galleryStyles.image} loading="lazy" />
                   
                   {/* Hover Overlay */}
                   <div className="gallery-overlay" style={galleryStyles.overlay}>
@@ -229,7 +179,8 @@ const galleryStyles = {
   }),
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+    gridAutoRows: '280px',
     gap: '1.5rem',
   },
   card: {
@@ -245,7 +196,7 @@ const galleryStyles = {
   imgWrapper: {
     position: 'relative',
     width: '100%',
-    paddingTop: '75%', /* 4:3 aspect ratio */
+    height: '100%',
     overflow: 'hidden',
   },
   image: {

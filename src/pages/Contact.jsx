@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Mail, Phone, MapPin, Send, HelpCircle, ChevronDown, CheckCircle, ShieldAlert } from 'lucide-react';
+import { addQuery } from '../utils/api';
 
 export default function Contact() {
   // Form State
@@ -14,7 +16,7 @@ export default function Contact() {
   const faqs = [
     {
       q: 'How do I know my donation is used transparently?',
-      a: 'Ponner Trust is fully audited by registered chartered accountants. We publish audited financial balance sheets annually. 92% of all donations go directly into funding active project implementation (textbooks, medical vials, solar posts), while only 8% supports administration.'
+      a: 'Annai Therasa Home is fully audited by registered chartered accountants. We publish audited financial balance sheets annually. 92% of all donations go directly into funding active project implementation (textbooks, medical vials, solar posts), while only 8% supports administration.'
     },
     {
       q: 'How can I obtain my tax-deduction receipt?',
@@ -44,23 +46,37 @@ export default function Contact() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (handleValidate()) {
       setIsSubmitting(true);
-      setTimeout(() => {
-        setIsSubmitting(false);
+      try {
+        await addQuery({
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+          category: 'General'
+        });
         setSuccess(true);
         setForm({ name: '', email: '', subject: '', message: '' });
         setTimeout(() => setSuccess(false), 5000);
-      }, 1500);
+      } catch (err) {
+        console.error("Error submitting query:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   return (
     <div className="page-wrapper" style={contactStyles.wrapper}>
+      <Helmet>
+        <title>Contact Us - Annai Therasa Home</title>
+        <meta name="description" content="Get in touch with Annai Therasa Home. Contact our office team or drop a message to learn more about our projects, tax benefits, or volunteering opportunities." />
+      </Helmet>
       {/* Page Hero */}
-      <section style={contactStyles.hero}>
+      <section style={contactStyles.hero} className="mesh-bg">
         <div style={contactStyles.heroOverlay} />
         <div className="container" style={contactStyles.heroContent}>
           <span style={contactStyles.heroTag}>GET IN TOUCH</span>
@@ -87,9 +103,9 @@ export default function Contact() {
                 <div className="card-glass" style={contactStyles.infoCard}>
                   <MapPin size={24} color="var(--primary)" />
                   <div>
-                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Registered Head Office</strong>
-                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      12/4 Ponner Trust Building, Cathedral Road, Chennai, TN - 600086
+                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Annai Therasa Home for the Intellectually Impaired and the Handicapped</strong>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.4, display: 'block' }}>
+                      Ayyappan Nagar, First Street, Y. Ottakadai<br />Madurai, Tamil Nadu
                     </span>
                   </div>
                 </div>
@@ -97,9 +113,9 @@ export default function Contact() {
                 <div className="card-glass" style={contactStyles.infoCard}>
                   <Phone size={24} color="var(--primary)" />
                   <div>
-                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Phone Numbers</strong>
+                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Phone & Google Pay</strong>
                     <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      <a href="tel:+914428739104">+91 44 2873 9104</a> | <a href="tel:+919840274190">+91 98402 74190</a>
+                      <a href="tel:+919655573202">+91 96555 73202</a>
                     </span>
                   </div>
                 </div>
@@ -107,9 +123,9 @@ export default function Contact() {
                 <div className="card-glass" style={contactStyles.infoCard}>
                   <Mail size={24} color="var(--primary)" />
                   <div>
-                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Email Support</strong>
-                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      <a href="mailto:info@ponnertrust.org">info@ponnertrust.org</a>
+                    <strong style={{ display: 'block', marginBottom: '0.2rem' }}>Legal Advisor</strong>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.4, display: 'block' }}>
+                      K. Samidurai<br />Advocate, Madurai High Court
                     </span>
                   </div>
                 </div>
@@ -120,10 +136,10 @@ export default function Contact() {
                 <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--primary)' }}>
                   Accreditations & Registry
                 </h4>
-                <ul style={{ listStyle: 'none', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <li>• PAN Exemption Cert: <strong>AAATP8192N</strong></li>
-                  <li>• IT exemption under <strong>Sec 80G & 12A</strong></li>
-                  <li>• CSR Registration No: <strong>CSR00018302</strong></li>
+                <ul style={{ listStyle: 'none', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.6rem', lineHeight: 1.4 }}>
+                  <li>• Government Registered (Registration No. 128/2009)</li>
+                  <li>• Operates under the Rights of Persons with Disabilities Act, 2016</li>
+                  <li>• Eligible for 12A, 80G, and CSR support, enabling tax-beneficial donations and corporate social responsibility partnerships.</li>
                 </ul>
               </div>
             </div>
@@ -252,16 +268,17 @@ export default function Contact() {
       </section>
 
       {/* Map Section */}
-      <section style={{ height: '380px', width: '100%', borderTop: '1px solid var(--border-color)' }}>
+      <section style={{ height: '400px', width: '100%', borderTop: '1px solid var(--border-color)', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', background: 'radial-gradient(ellipse at center, transparent 0%, var(--bg-base) 100%)', zIndex: 1 }} />
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3886.7877239611295!2d80.2520638!3d13.0490135!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a526639a38f38ff%3A0xeef2a70bfbb39c94!2sCathedral%20Rd%2C%20Chennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
           width="100%"
           height="100%"
-          style={{ border: 0, filter: 'grayscale(0.3) contrast(1.1)' }}
+          style={{ border: 0, filter: 'grayscale(0.5) opacity(0.8)' }}
           allowFullScreen=""
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Ponner Trust Head Office Location Map"
+          title="Annai Therasa Home Head Office Location Map"
         />
       </section>
     </div>
@@ -320,9 +337,7 @@ const contactStyles = {
     gap: '3rem',
     alignItems: 'start',
     textAlign: 'left',
-    '@media (max-width: 850px)': {
-      gridTemplateColumns: '1fr',
-    },
+
   },
   infoCol: {
     display: 'flex',

@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { X, Heart, Shield, Award, CheckCircle, CreditCard, Sparkles } from 'lucide-react';
+import { addDonation } from '../utils/localStorageHelper';
+
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => {
+      resolve(true);
+    };
+    script.onerror = () => {
+      resolve(false);
+    };
+    document.body.appendChild(script);
+  });
+};
 
 export default function QuickDonateModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
@@ -13,6 +32,7 @@ export default function QuickDonateModal({ isOpen, onClose }) {
     pan: '',
   });
   const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [campaignId, setCampaignId] = useState('camp_general');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -23,6 +43,7 @@ export default function QuickDonateModal({ isOpen, onClose }) {
       setAmount('2500');
       setIsCustom(false);
       setDonorDetails({ name: '', email: '', phone: '', pan: '' });
+      setCampaignId('camp_general');
       setErrors({});
     } else {
       document.body.style.overflow = 'unset';
@@ -81,13 +102,77 @@ export default function QuickDonateModal({ isOpen, onClose }) {
     }
   };
 
-  const handleDonateSubmit = () => {
+  const handleDonateSubmit = async () => {
     setIsProcessing(true);
-    // Simulate API delay
-    setTimeout(() => {
+    setErrors({});
+    
+    const isScriptLoaded = await loadRazorpay();
+    if (!isScriptLoaded) {
+      setErrors({ amount: 'Failed to load payment gateway. Please check your internet connection.' });
       setIsProcessing(false);
-      setStep(4);
-    }, 2000);
+      return;
+    }
+
+    const campaignNames = {
+      camp_general: 'General Fund',
+      camp_education: 'Vidya Scholarship (Education)',
+      camp_healthcare: 'Rural Mobile Clinics (Healthcare)',
+      camp_livelihood: 'Women Livelihood Center (Livelihood)',
+      camp_environment: 'Green Villages (Solar Grid)'
+    };
+
+    const donationAmount = Number(amount);
+    
+    const options = {
+      key: 'rzp_test_dummy_key_replace_me', // Dummy test key, replace with actual Razorpay Key
+      amount: donationAmount * 100, // Amount in paise
+      currency: 'INR',
+      name: 'Annai Therasa Home',
+      description: `Donation towards ${campaignNames[campaignId] || 'General Fund'}`,
+      image: 'https://cdn-icons-png.flaticon.com/512/3209/3209935.png', // Placeholder logo
+      handler: function (response) {
+        // Payment success callback
+        // response.razorpay_payment_id
+        addDonation({
+          name: donorDetails.name,
+          email: donorDetails.email,
+          phone: donorDetails.phone || 'N/A',
+          pan: donorDetails.pan,
+          amount: donationAmount,
+          frequency: frequency,
+          paymentMethod: paymentMethod,
+          campaignId: campaignId,
+          campaignName: campaignNames[campaignId] || 'General Fund',
+          transactionId: response.razorpay_payment_id
+        });
+        setIsProcessing(false);
+        setStep(4);
+      },
+      prefill: {
+        name: donorDetails.name,
+        email: donorDetails.email,
+        contact: donorDetails.phone,
+      },
+      notes: {
+        campaign: campaignNames[campaignId] || 'General Fund',
+        frequency: frequency
+      },
+      theme: {
+        color: '#064e3b'
+      },
+      modal: {
+        ondismiss: function() {
+          setIsProcessing(false);
+        }
+      }
+    };
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.on('payment.failed', function (response) {
+      setErrors({ amount: `Payment Failed: ${response.error.description}` });
+      setIsProcessing(false);
+    });
+    paymentObject.open();
   };
 
   return (
@@ -219,6 +304,21 @@ export default function QuickDonateModal({ isOpen, onClose }) {
                   />
                   {errors.pan && <p style={modalStyles.errorText}>{errors.pan}</p>}
                 </div>
+
+                <div>
+                  <label style={modalStyles.label}>Choose Project Cause / Campaign *</label>
+                  <select
+                    value={campaignId}
+                    onChange={(e) => setCampaignId(e.target.value)}
+                    style={modalStyles.input}
+                  >
+                    <option value="camp_general">General Trust Fund</option>
+                    <option value="camp_education">Vidya Scholarship (Education)</option>
+                    <option value="camp_healthcare">Rural Mobile Clinics (Healthcare)</option>
+                    <option value="camp_livelihood">Women Livelihood Center (Livelihood)</option>
+                    <option value="camp_environment">Green Villages (Solar Grid)</option>
+                  </select>
+                </div>
               </div>
             </div>
           )}
@@ -227,7 +327,7 @@ export default function QuickDonateModal({ isOpen, onClose }) {
           {step === 3 && (
             <div style={modalStyles.stepContainer}>
               <h4 style={modalStyles.stepTitle}>Complete Your Gift</h4>
-              <p style={modalStyles.stepDesc}>Supporting Ponner Trust with: <strong style={{color:'var(--primary)'}}>₹{amount} ({frequency})</strong></p>
+              <p style={modalStyles.stepDesc}>Supporting Annai Therasa Home with: <strong style={{color:'var(--primary)'}}>₹{amount} ({frequency})</strong></p>
 
               <div style={modalStyles.payMethods}>
                 <div 

@@ -1,7 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Target, Eye, Shield, Users, Heart, Award, ArrowRight } from 'lucide-react';
+import { getMenuOptions, getPage } from '../utils/api';
 
 export default function About() {
+  const [customSections, setCustomSections] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomSections = async () => {
+      try {
+        const options = await getMenuOptions();
+        const aboutOptions = options.filter(o => 
+          o.category === 'about_us' && 
+          !['vision', 'history', 'leadership', 'board-members'].includes(o.linkId)
+        );
+        
+        const sectionsData = await Promise.all(
+          aboutOptions.map(async (opt) => {
+            try {
+              const page = await getPage(opt.linkId);
+              return { ...page, id: opt.linkId, label: opt.label };
+            } catch (e) {
+              return null;
+            }
+          })
+        );
+        
+        setCustomSections(sectionsData.filter(Boolean));
+      } catch (err) {
+        console.error('Failed to load custom sections:', err);
+      }
+    };
+    
+    fetchCustomSections();
+  }, []);
+
   const values = [
     {
       icon: <Shield size={24} color="var(--primary)" />,
@@ -27,57 +60,58 @@ export default function About() {
 
   const team = [
     {
-      name: 'Dr. R. Ponner Swamy',
-      role: 'Founder & Chief Trustee',
-      bio: 'Visionary educationist with 25+ years in rural development. Founded the trust to give back to his home district.',
-      img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200'
-    },
-    {
-      name: 'Dr. Anjali Mehta',
-      role: 'Medical Director',
-      bio: 'Pediatrician who retired from state services to lead our Arogya health camps and rural vaccination drives.',
-      img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200&h=200'
-    },
-    {
-      name: 'Mr. S. Karthikeyan',
-      role: 'Secretary & Operations Head',
-      bio: 'Former corporate CSR consultant specializing in executing large-scale sanitation and drinking water drives.',
-      img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200'
+      name: 'Mr. K. Samidurai',
+      role: 'Legal Advisor',
+      bio: 'Advocate at the Madurai High Court, ensuring all legal compliances and advocacy for the disabled.',
+      img: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&q=80&w=200&h=200'
     }
   ];
 
   const milestones = [
-    { year: '2011', title: 'The Genesis', desc: 'Ponner Trust is registered. First scholarship cohort of 12 rural students funded.' },
-    { year: '2015', title: 'Mobile Medical Vans', desc: 'Launched two fully-equipped healthcare vans to cover 18 tribal villages weekly.' },
-    { year: '2019', title: '10K Lives Impacted', desc: 'Reached a cumulative impact of 10,000 beneficiaries across all social drives.' },
-    { year: '2024', title: 'Skill Center Inception', desc: 'Established the Ponner Center for Vocational Studies supporting 150+ women annually.' }
+    { year: '2009', title: 'The Genesis', desc: 'Annai Therasa Home is established and officially registered to provide shelter and care for the intellectually impaired.' },
+    { year: '2013', title: 'Residential Wing Expansion', desc: 'Inaugurated a new residential facility, expanding our capacity to accommodate 50+ residents safely.' },
+    { year: '2018', title: 'Specialized Rehabilitation', desc: 'Launched tailored physiotherapy and special education programs designed for multiple disabilities.' },
+    { year: '2023', title: 'Vocational Training Unit', desc: 'Established a craft and skill center to empower our residents with self-sustaining livelihood skills.' }
+  ];
+
+  const awards = [
+    { title: 'Government Registered', org: 'Registration No. 128/2009' },
+    { title: 'RPwD Act 2016 Compliant', org: 'Operates under the Rights of Persons with Disabilities Act, 2016' },
+    { title: 'Tax-Beneficial Donations', org: 'Eligible for 12A, 80G, and CSR support, enabling tax-beneficial donations and corporate partnerships.' }
   ];
 
   return (
     <div className="page-wrapper" style={aboutStyles.wrapper}>
+      <Helmet>
+        <title>About Us - Annai Therasa Home</title>
+        <meta name="description" content="Learn about the mission, vision, and team behind Annai Therasa Home's efforts to support rural communities." />
+      </Helmet>
       {/* Page Hero */}
-      <section style={aboutStyles.hero}>
+      <section style={aboutStyles.hero} className="mesh-bg">
         <div style={aboutStyles.heroOverlay} />
         <div className="container" style={aboutStyles.heroContent}>
           <span style={aboutStyles.heroTag}>OUR STORY</span>
           <h1 style={aboutStyles.heroTitle}>A Decade of Devotion & Trust</h1>
           <p style={aboutStyles.heroDesc}>
-            Ponner Educational and Charitable Trust was established to uplift vulnerable rural communities through accessible education and quality healthcare.
+            Annai Therasa Home for the Intellectually Impaired and the Handicapped was established to uplift vulnerable rural communities and provide dedicated care and advocacy.
           </p>
         </div>
       </section>
 
       {/* Story & Mission Section */}
-      <section className="section">
+      <section id="vision" className="section">
         <div className="container">
           <div style={aboutStyles.storyGrid}>
             <div style={aboutStyles.storyText}>
               <h2 style={{ marginBottom: '1.5rem' }}>How We Began</h2>
               <p style={{ marginBottom: '1rem', lineHeight: 1.7 }}>
-                Founded in 2011, Ponner Trust started as a personal initiative by a group of passionate educators and doctors who witnessed the stark disparities in primary school facilities and basic medical checkups in rural districts.
+                Annai Therasa Home for the Intellectually Impaired and the Handicapped is a compassionate, non-profit organization located at Ayyappan Nagar, First Street, Y. Ottakadai, Madurai, Tamil Nadu. Since its establishment in 2009 (Government Registration No. 128/2009), our mission has been to provide a safe, caring, and dignified environment for individuals with intellectual and multiple disabilities.
               </p>
               <p style={{ marginBottom: '1rem', lineHeight: 1.7 }}>
-                What began as a small scholarship project funding tuition fees for twelve children has evolved into a robust charitable institution. Today, we work closely with village heads, school headmasters, and government panels to deliver holistic development.
+                We are committed to improving the quality of life of every resident through personalized care, rehabilitation, education, skill development, and emotional support. Our dedicated team works tirelessly to help each individual achieve their fullest potential while ensuring they are treated with love, respect, and dignity.
+              </p>
+              <p style={{ marginBottom: '1rem', lineHeight: 1.7 }}>
+                Our organization operates in accordance with the Rights of Persons with Disabilities (RPwD) Act, 2016, promoting equal rights, inclusion, and opportunities for persons with disabilities.
               </p>
               <div style={aboutStyles.quoteBox}>
                 <p style={aboutStyles.quoteText}>
@@ -94,9 +128,12 @@ export default function About() {
                 </div>
                 <div>
                   <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Our Mission</h3>
-                  <p style={{ fontSize: '0.92rem', lineHeight: 1.5 }}>
-                    To construct scalable and transparent channels in primary schooling, sanitation, health awareness, and skill development for rural families.
-                  </p>
+                  <ul style={{ fontSize: '0.92rem', lineHeight: 1.5, paddingLeft: '1.2rem', color: 'var(--text-secondary)' }}>
+                    <li>To provide quality residential care for persons with intellectual and physical disabilities.</li>
+                    <li>To promote independence, self-confidence, and social inclusion.</li>
+                    <li>To offer rehabilitation, education, healthcare, and life skills training.</li>
+                    <li>To create a loving environment where every individual feels valued and respected.</li>
+                  </ul>
                 </div>
               </div>
 
@@ -107,7 +144,7 @@ export default function About() {
                 <div>
                   <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Our Vision</h3>
                   <p style={{ fontSize: '0.92rem', lineHeight: 1.5 }}>
-                    A society where every individual, regardless of their birthplace, has the health, knowledge, and tools to realize their full potential.
+                    To build an inclusive society where persons with disabilities live with dignity, equality, and the opportunity to lead meaningful and fulfilling lives.
                   </p>
                 </div>
               </div>
@@ -117,7 +154,7 @@ export default function About() {
       </section>
 
       {/* Core Values */}
-      <section className="section" style={aboutStyles.valuesSection}>
+      <section id="values" className="section" style={aboutStyles.valuesSection}>
         <div className="container">
           <div style={aboutStyles.sectionHeader}>
             <span style={aboutStyles.sectionTag}>GUIDING LIGHTS</span>
@@ -137,7 +174,7 @@ export default function About() {
       </section>
 
       {/* Team / Leadership */}
-      <section className="section">
+      <section id="leadership" className="section">
         <div className="container">
           <div style={aboutStyles.sectionHeader}>
             <span style={aboutStyles.sectionTag}>OUR LEADERSHIP</span>
@@ -158,7 +195,7 @@ export default function About() {
       </section>
 
       {/* Timeline Section */}
-      <section className="section" style={aboutStyles.timelineSection}>
+      <section id="history" className="section" style={aboutStyles.timelineSection}>
         <div className="container">
           <div style={aboutStyles.sectionHeader}>
             <span style={aboutStyles.sectionTag}>OUR JOURNEY</span>
@@ -180,6 +217,72 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      {/* Awards Section */}
+      <section className="section" style={aboutStyles.awardsSection}>
+        <div className="container">
+          <div style={aboutStyles.sectionHeader}>
+            <span style={aboutStyles.sectionTag}>RECOGNITION</span>
+            <h2 style={aboutStyles.sectionTitle}>Awards & Certifications</h2>
+          </div>
+          <div style={aboutStyles.awardsGrid}>
+            {awards.map((award, idx) => (
+              <div key={idx} className="card-glass" style={aboutStyles.awardCard}>
+                <Award size={32} color="var(--secondary)" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{award.title}</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>{award.org}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Custom Dynamic Sections */}
+      {customSections.map((section, idx) => (
+        <section key={section.id} id={section.id} className="section" style={idx % 2 !== 0 ? { backgroundColor: 'var(--bg-surface)' } : {}}>
+          <div className="container">
+            <div style={aboutStyles.storyGrid}>
+              {idx % 2 === 0 ? (
+                <>
+                  <div style={aboutStyles.storyText}>
+                    <h2 style={{ marginBottom: '1.5rem', fontSize: '2.5rem', color: 'var(--text-primary)' }}>{section.title || section.label}</h2>
+                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, color: 'var(--text-secondary)', fontSize: '1.05rem' }}>
+                      {section.content || `Content for ${section.label} is coming soon.`}
+                    </div>
+                  </div>
+                  <div style={aboutStyles.missionVisionCol}>
+                    {section.heroImage ? (
+                      <img src={section.heroImage} alt={section.title} style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)' }} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', minHeight: '300px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                        Image Placeholder
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={aboutStyles.missionVisionCol}>
+                    {section.heroImage ? (
+                      <img src={section.heroImage} alt={section.title} style={{ width: '100%', height: 'auto', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)' }} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', minHeight: '300px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                        Image Placeholder
+                      </div>
+                    )}
+                  </div>
+                  <div style={aboutStyles.storyText}>
+                    <h2 style={{ marginBottom: '1.5rem', fontSize: '2.5rem', color: 'var(--text-primary)' }}>{section.title || section.label}</h2>
+                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, color: 'var(--text-secondary)', fontSize: '1.05rem' }}>
+                      {section.content || `Content for ${section.label} is coming soon.`}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      ))}
     </div>
   );
 }
@@ -368,9 +471,7 @@ const aboutStyles = {
     width: '3px',
     backgroundColor: 'var(--border-color)',
     zIndex: 1,
-    '@media (max-width: 768px)': {
-      left: '20px',
-    },
+
   },
   timelineItem: (isLeft) => ({
     position: 'relative',
@@ -380,13 +481,7 @@ const aboutStyles = {
     left: isLeft ? 0 : '50%',
     textAlign: isLeft ? 'right' : 'left',
     zIndex: 2,
-    '@media (max-width: 768px)': {
-      width: '100%',
-      left: 0,
-      textAlign: 'left',
-      paddingLeft: '45px',
-      paddingRight: '10px',
-    },
+
   }),
   timelineDot: {
     position: 'absolute',
@@ -400,9 +495,7 @@ const aboutStyles = {
     border: '4px solid var(--bg-surface)',
     boxShadow: 'var(--shadow-sm)',
     zIndex: 3,
-    '@media (max-width: 768px)': {
-      left: '20px',
-    },
+
   },
   timelineContent: {
     backgroundColor: 'var(--bg-base)',
@@ -429,4 +522,20 @@ const aboutStyles = {
     color: 'var(--text-secondary)',
     lineHeight: 1.5,
   },
+  awardsSection: {
+    backgroundColor: 'var(--bg-base)',
+    paddingBottom: '8rem',
+  },
+  awardsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '2rem',
+  },
+  awardCard: {
+    padding: '3rem 2rem',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }
 };
