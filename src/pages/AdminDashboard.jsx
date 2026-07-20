@@ -12,7 +12,8 @@ import {
   getServices, addService, updateService, deleteService,
   getMenuOptions, addMenuOption, updateMenuOption, deleteMenuOption,
   getPage, updatePage, uploadImage,
-  getBoardMembers, addBoardMember, updateBoardMember, deleteBoardMember
+  getBoardMembers, addBoardMember, updateBoardMember, deleteBoardMember,
+  loginAdmin
 } from '../utils/api';
 
 export default function AdminDashboard() {
@@ -152,19 +153,22 @@ export default function AdminDashboard() {
   };
 
   // Login handler
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (loginEmail === 'admin@motherteresahome.org' && loginPassword === 'admin123') {
+    try {
+      const data = await loginAdmin(loginEmail, loginPassword);
+      localStorage.setItem('adminToken', data.token);
       setIsLoggedIn(true);
       setLoginError('');
       showToast('Logged in successfully as Administrator.');
-    } else {
-      setLoginError('Invalid administrator credentials.');
+    } catch (error) {
+      setLoginError(error.response?.data?.error || 'Invalid administrator credentials.');
     }
   };
 
   // Log out handler
   const handleLogout = () => {
+    localStorage.removeItem('adminToken');
     setIsLoggedIn(false);
     setLoginEmail('');
     setLoginPassword('');
@@ -613,10 +617,7 @@ export default function AdminDashboard() {
               </button>
             </form>
 
-            <div style={styles.loginTip}>
-              <Sparkles size={14} color="var(--secondary)" />
-              <span>Demo Login: <strong>admin@motherteresahome.org</strong> / <strong>admin123</strong></span>
-            </div>
+
           </div>
         </div>
       ) : (

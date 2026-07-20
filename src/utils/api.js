@@ -6,6 +6,20 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// --- AUTHENTICATION ---
+export const loginAdmin = async (email, password) => {
+  const response = await api.post('/auth/login', { email, password });
+  return response.data;
+};
+
 // --- IMAGE UPLOAD ---
 export const uploadImage = async (file) => {
   const formData = new FormData();
