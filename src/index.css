@@ -398,3 +398,9 @@ a {
     padding: 1rem !important;
   }
 }
+
+
+/* Global WebKit scrolling optimization for Appilix */
+* {
+  -webkit-overflow-scrolling: touch;
+}

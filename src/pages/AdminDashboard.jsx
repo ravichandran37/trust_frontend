@@ -34,13 +34,7 @@ export default function AdminDashboard() {
     sessionStorage.setItem('ponnar_adminTab', activeTab);
   }, [activeTab]);
 
-  useEffect(() => {
-    // Lock the main window scrolling when viewing the Admin Dashboard
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, []);
+
 
   // Database states
   const [donations, setDonations] = useState([]);
